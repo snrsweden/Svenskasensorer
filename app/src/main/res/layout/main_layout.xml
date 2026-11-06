@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Svenska Sensorer" android:textSize="22sp" android:textStyle="bold" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Symbol" /><Spinner android:id="@+id/symbol_spinner" android:layout_width="match_parent" android:layout_height="wrap_content" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Färg" /><Spinner android:id="@+id/color_spinner" android:layout_width="match_parent" android:layout_height="wrap_content" />
+<ImageView android:id="@+id/symbol_preview" android:layout_width="match_parent" android:layout_height="140dp" android:contentDescription="Förhandsvisning av sensorsymbol" />
+<TextView android:id="@+id/angle_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Riktning: 0° / 0 mils" />
+<SeekBar android:id="@+id/angle_seek" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="359" />
+<EditText android:id="@+id/symbol_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Beteckning (t.ex. CIM-01)" android:inputType="textCapCharacters" />
+<Button android:id="@+id/save_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Spara val" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Version 0.1: symbolval, färg, rotation och lokala inställningar. Kartplacering är ännu inte implementerad." />
+</LinearLayout></ScrollView>

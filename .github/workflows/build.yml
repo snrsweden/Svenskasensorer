@@ -1,0 +1,27 @@
+name: Build Svenska Sensorer (ATAK SDK required)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Verify ATAK build dependency
+        run: |
+          if [ ! -f atak-gradle-takdev.jar ]; then
+            echo 'ATAK TakDev jar or authenticated TAK Maven configuration is required.'
+            exit 1
+          fi
+      - name: Build CIV debug APK
+        run: chmod +x gradlew && ./gradlew assembleCivDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: svenska-sensorer-apk
+          path: app/build/outputs/apk/**/*.apk
