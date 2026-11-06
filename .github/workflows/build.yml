@@ -1,27 +1,89 @@
-name: Build Svenska Sensorer (ATAK SDK required)
+
+name: Build Svenska Sensorer ATAK 5.6
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
+
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build ATAK Plugin
+    runs-on: ubuntu-24.04
+
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - name: Verify ATAK build dependency
+
+      - name: Configure Android SDK
+        shell: bash
         run: |
-          if [ ! -f atak-gradle-takdev.jar ]; then
-            echo 'ATAK TakDev jar or authenticated TAK Maven configuration is required.'
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+
+          test -d "$ANDROID_HOME" || {
+            echo "::error::Android SDK is missing"
+            exit 1
+          }
+
+          echo "Android SDK found"
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+
+          if [ ! -x "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found"
             exit 1
           fi
-      - name: Build CIV debug APK
-        run: chmod +x gradlew && ./gradlew assembleCivDebug --stacktrace
-      - uses: actions/upload-artifact@v4
+
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
+
+      - name: Configure Gradle permissions
+        run: chmod +x ./gradlew
+
+      - name: Verify ATAK TakDev dependency
+        shell: bash
+        run: |
+          if [ -f "atak-gradle-takdev.jar" ]; then
+            echo "ATAK TakDev dependency found"
+          else
+            echo "::error::ATAK TakDev dependency is missing"
+            echo "Provide a compatible TakDev JAR or configure authenticated TAK Maven access."
+            exit 1
+          fi
+
+      - name: Build Svenska Sensorer APK
+        shell: bash
+        run: |
+          ./gradlew assembleCivDebug \
+            --stacktrace \
+            --no-daemon
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
-          name: svenska-sensorer-apk
+          name: Svenska-Sensorer-ATAK-5.6
           path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 30
+          
